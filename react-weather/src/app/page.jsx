@@ -9,6 +9,8 @@ export default function Home() {
 
   const [loading, setLoading] = useState(false);
 
+  const [isRendered, setIsRendered] = useState(false);
+
   const [weatherData, setWeatherData] = useState({
     location: "",
     temp_f: "",
@@ -16,6 +18,7 @@ export default function Home() {
     icon: "",
     condition: "",
   });
+  const days = 7;
 
   function handleLocationChange(event) {
     setSearchLocation(event.target.value);
@@ -25,9 +28,11 @@ export default function Home() {
     setLoading(true);
     try {
       const req = await fetch(
-        `https://api.weatherapi.com/v1/current.json?key=4bd547ca14034bd9a2a81752240802&q=${searchLocation}&aqi=no`
+        `http://api.weatherapi.com/v1/forecast.json?key=4bd547ca14034bd9a2a81752240802&q=${searchLocation}&days=${days}&aqi=no&alerts=no
+        `
       );
       const data = await req.json();
+
       setWeatherData({
         location: data.location.name,
         temp_f: data.current.temp_f,
@@ -35,10 +40,12 @@ export default function Home() {
         temp_c: data.current.temp_c,
         icon: data.current.condition.icon,
       });
+      setIsRendered(true);
     } catch (error) {
       console.error(error);
     }
     setLoading(false);
+
     setSearchLocation("");
   };
 
@@ -50,14 +57,16 @@ export default function Home() {
         inputValue={searchLocation}
         onChange={handleLocationChange}
       />
-      <WeatherCard
-        location={weatherData.location}
-        temp_f={weatherData.temp_f}
-        condition={weatherData.condition}
-        temp_c={weatherData.temp_c}
-        loading={loading}
-        icon={weatherData.icon}
-      />
+      {isRendered && (
+        <WeatherCard
+          location={weatherData.location}
+          temp_f={weatherData.temp_f}
+          condition={weatherData.condition}
+          temp_c={weatherData.temp_c}
+          loading={loading}
+          icon={weatherData.icon}
+        />
+      )}
     </>
   );
 }
